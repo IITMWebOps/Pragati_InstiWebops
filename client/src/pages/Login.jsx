@@ -1,22 +1,6 @@
 import React, { useState } from "react";
-
-// Mock implementations for demo purposes
-const axiosClient = {
-  post: async (url, data) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    if (data.email && data.password) {
-      return { data: { token: "demo_token_12345" } };
-    }
-    throw { response: { data: { message: "Invalid credentials" } } };
-  }
-};
-
-const useNavigate = () => {
-  return (path) => {
-    console.log("Navigation to:", path);
-    alert(`Navigation to ${path} (demo mode)`);
-  };
-};
+import axiosClient from "../api/axiosClient";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -24,20 +8,36 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
       const res = await axiosClient.post("/auth/login", form);
+      localStorage.clear();
+
+    
+      
+
+      
+
+      // store token
       localStorage.setItem("tp_token", res.data.token);
+
+      // store role (IMPORTANT for admin)
+      localStorage.setItem("tp_role", res.data.user.role);
+
+      // store name (optional)
+      localStorage.setItem("tp_name", res.data.user.name);
+
+      // navigate properly
       navigate("/dashboard");
+
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     } finally {

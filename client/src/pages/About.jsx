@@ -59,7 +59,7 @@ const About = () => {
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
             borderLeft: '4px solid #800000'
           }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🎯</div>
+            
             <h3 style={{
               fontFamily: 'Merriweather, serif',
               fontSize: '1.5rem',
@@ -85,7 +85,7 @@ const About = () => {
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
             borderLeft: '4px solid #000080'
           }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>👁️</div>
+            
             <h3 style={{
               fontFamily: 'Merriweather, serif',
               fontSize: '1.5rem',
@@ -124,32 +124,32 @@ const About = () => {
           }}>
             {[
               {
-                icon: '📚',
+                
                 title: 'Curated Study Materials',
                 description: 'Access comprehensive Bluebooks, NCERTs, standard reference books, and subject-wise notes curated by successful aspirants.'
               },
               {
-                icon: '📰',
+                
                 title: 'Daily Current Affairs',
                 description: 'Weekly compilations of The Hindu editorials, PIB updates, and current affairs analysis tailored for UPSC preparation.'
               },
               {
-                icon: '📝',
+                
                 title: 'Mock Test Series',
                 description: 'Regular prelims and mains mock tests with detailed answer keys, syllabus coverage, and performance analytics.'
               },
               {
-                icon: '🎤',
+                
                 title: 'Expert Sessions',
                 description: 'Talks by successful civil servants, retired bureaucrats, and subject matter experts sharing insights and strategies.'
               },
               {
-                icon: '👥',
+                
                 title: 'Peer Discussion Forums',
                 description: 'Engage in meaningful discussions, doubt clarification, and answer writing practice with fellow aspirants.'
               },
               {
-                icon: '📊',
+                
                 title: 'Progress Tracking',
                 description: 'Personal dashboards to monitor your syllabus completion, test performance, and study streaks.'
               }

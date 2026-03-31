@@ -1,22 +1,6 @@
 import React, { useState } from "react";
-
-
-const axiosClient = {
-  post: async (url, data) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    if (url === "/auth/register") {
-      return { data: { success: true } };
-    }
-    return { data: { token: "demo_token_12345" } };
-  }
-};
-
-const useNavigate = () => {
-  return (path) => {
-    console.log("Navigation to:", path);
-    alert(`Navigation to ${path} (demo mode)`);
-  };
-};
+import axiosClient from "../api/axiosClient";
+import { useNavigate } from "react-router-dom";
 
 // IITM email validation
 const isValidIitmEmail = (email) => {
@@ -27,7 +11,7 @@ const isValidIitmEmail = (email) => {
   );
 };
 
-// basic password strength checker
+// password strength checker
 const getPasswordStrength = (password) => {
   let score = 0;
 
@@ -36,23 +20,19 @@ const getPasswordStrength = (password) => {
   if (/[0-9]/.test(password)) score++;
   if (/[^A-Za-z0-9]/.test(password)) score++;
 
-  if (!password) {
-    return { label: "", score: 0 };
-  } else if (score <= 1) {
-    return { label: "Weak", score };
-  } else if (score === 2 || score === 3) {
-    return { label: "Medium", score };
-  } else {
-    return { label: "Strong", score };
-  }
+  if (!password) return { label: "", score: 0 };
+  if (score <= 1) return { label: "Weak", score };
+  if (score <= 3) return { label: "Medium", score };
+  return { label: "Strong", score };
 };
 
 const Register = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
   const passwordStrength = getPasswordStrength(form.password);
 
   const handleChange = (e) => {
@@ -65,28 +45,43 @@ const Register = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setLoading(true);
 
- 
+    // IITM email check
     if (!isValidIitmEmail(form.email)) {
-      setError("Please use your IITM email address (smail.iitm.ac.in / iitm.ac.in).");
+      setError("Please use your IITM email (smail.iitm.ac.in / iitm.ac.in).");
+      setLoading(false);
       return;
     }
 
     try {
-  
+      // 1. Register
       await axiosClient.post("/auth/register", form);
 
-   
+      // 2. Auto login
       const loginRes = await axiosClient.post("/auth/login", {
         email: form.email,
         password: form.password
       });
 
+      console.log("LOGIN RESPONSE:", loginRes.data);
+
+      // 3. Store auth data
       localStorage.setItem("tp_token", loginRes.data.token);
-      setSuccess("Registration successful! Redirecting to your dashboard...");
-      setTimeout(() => navigate("/dashboard"), 1500);
+
+      if (loginRes.data.user) {
+        localStorage.setItem("tp_role", loginRes.data.user.role);
+        localStorage.setItem("tp_name", loginRes.data.user.name);
+      }
+
+      // 4. Navigate
+      navigate("/dashboard");
+
     } catch (err) {
+      console.error(err);
       setError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,259 +103,99 @@ const Register = () => {
         maxWidth: '480px',
         width: '100%'
       }}>
+        
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <h2 style={{
             fontFamily: 'Merriweather, serif',
             fontSize: '2rem',
             color: '#2C3E50',
-            marginBottom: '8px',
             fontWeight: '700'
           }}>
             Create Account
           </h2>
-          <p style={{
-            color: '#555555',
-            fontSize: '0.95rem',
-            lineHeight: '1.5'
-          }}>
-            Join the IIT Madras UPSC preparation community
+          <p style={{ color: '#555' }}>
+            Join IIT Madras UPSC community
           </p>
         </div>
 
-        {/* Error/Success Messages */}
-        {error && (
-          <div style={{
-            backgroundColor: '#FEE',
-            border: '1px solid #FCC',
-            color: '#C33',
-            padding: '12px 16px',
-            borderRadius: '6px',
-            marginBottom: '20px',
-            fontSize: '0.9rem'
-          }}>
-            {error}
-          </div>
-        )}
-        
-        {success && (
-          <div style={{
-            backgroundColor: '#E8F5E9',
-            border: '1px solid #A5D6A7',
-            color: '#27AE60',
-            padding: '12px 16px',
-            borderRadius: '6px',
-            marginBottom: '20px',
-            fontSize: '0.9rem'
-          }}>
-            {success}
-          </div>
-        )}
+        {/* Messages */}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        {success && <p style={{ color: "green" }}>{success}</p>}
 
-        {/* Name Input */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{
-            display: 'block',
-            color: '#2C3E50',
-            fontWeight: '600',
-            marginBottom: '8px',
-            fontSize: '0.9rem'
-          }}>
-            Full Name
-          </label>
+        {/* Form */}
+        <form onSubmit={handleSubmit}>
+
           <input
             name="name"
-            type="text"
-            placeholder="Enter your full name"
+            placeholder="Full Name"
             value={form.name}
             onChange={handleChange}
             required
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              fontSize: '1rem',
-              border: '2px solid #E0E0E0',
-              borderRadius: '6px',
-              transition: 'all 0.3s ease',
-              fontFamily: 'Inter, sans-serif',
-              color: '#333333',
-              boxSizing: 'border-box'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#800000'}
-            onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+            style={{ width: "100%", padding: "12px", marginBottom: "12px" }}
           />
-        </div>
 
-        {/* Email Input */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{
-            display: 'block',
-            color: '#2C3E50',
-            fontWeight: '600',
-            marginBottom: '8px',
-            fontSize: '0.9rem'
-          }}>
-            IITM Email Address
-          </label>
           <input
             name="email"
             type="email"
-            placeholder="yourname@smail.iitm.ac.in"
+            placeholder="IITM Email"
             value={form.email}
             onChange={handleChange}
             required
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              fontSize: '1rem',
-              border: '2px solid #E0E0E0',
-              borderRadius: '6px',
-              transition: 'all 0.3s ease',
-              fontFamily: 'Inter, sans-serif',
-              color: '#333333',
-              boxSizing: 'border-box'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#800000'}
-            onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+            style={{ width: "100%", padding: "12px", marginBottom: "12px" }}
           />
-          <p style={{
-            fontSize: '0.8rem',
-            color: '#777777',
-            marginTop: '6px',
-            fontStyle: 'italic'
-          }}>
-            Use your official IIT Madras email
-          </p>
-        </div>
 
-        {/* Password Input */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{
-            display: 'block',
-            color: '#2C3E50',
-            fontWeight: '600',
-            marginBottom: '8px',
-            fontSize: '0.9rem'
-          }}>
-            Password
-          </label>
           <input
             name="password"
             type="password"
-            placeholder="Choose a strong password"
+            placeholder="Password"
             value={form.password}
             onChange={handleChange}
             required
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              fontSize: '1rem',
-              border: '2px solid #E0E0E0',
-              borderRadius: '6px',
-              transition: 'all 0.3s ease',
-              fontFamily: 'Inter, sans-serif',
-              color: '#333333',
-              boxSizing: 'border-box'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#800000'}
-            onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+            style={{ width: "100%", padding: "12px" }}
           />
 
-          {/* Password Strength Indicator */}
+          {/* Password strength */}
           {form.password && (
-            <div style={{ marginTop: '10px' }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginBottom: '6px'
-              }}>
-                <span style={{ fontSize: '0.85rem', color: '#555555' }}>
-                  Password strength:
-                </span>
-                <strong style={{
-                  fontSize: '0.85rem',
-                  color:
-                    passwordStrength.label === "Weak"
-                      ? "#C33"
-                      : passwordStrength.label === "Medium"
-                      ? "#E67E22"
-                      : "#27AE60"
-                }}>
-                  {passwordStrength.label}
-                </strong>
-              </div>
-              {/* Strength Bar */}
-              <div style={{
-                height: '4px',
-                backgroundColor: '#E0E0E0',
-                borderRadius: '2px',
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  height: '100%',
-                  width: `${(passwordStrength.score / 4) * 100}%`,
-                  backgroundColor:
-                    passwordStrength.label === "Weak"
-                      ? "#C33"
-                      : passwordStrength.label === "Medium"
-                      ? "#E67E22"
-                      : "#27AE60",
-                  transition: 'all 0.3s ease'
-                }} />
-              </div>
-            </div>
+            <p style={{
+              color:
+                passwordStrength.label === "Weak"
+                  ? "red"
+                  : passwordStrength.label === "Medium"
+                  ? "orange"
+                  : "green"
+            }}>
+              Strength: {passwordStrength.label}
+            </p>
           )}
-        </div>
 
-        {/* Submit Button */}
-        <button
-          onClick={handleSubmit}
-          style={{
-            width: '100%',
-            backgroundColor: '#800000',
-            color: '#FFFFFF',
-            padding: '14px',
-            fontSize: '1rem',
-            fontWeight: '600',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            marginTop: '12px',
-            fontFamily: 'Inter, sans-serif'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#660000'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#800000'}
-        >
-          Create Account
-        </button>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: "14px",
+              backgroundColor: "#800000",
+              color: "white",
+              border: "none",
+              marginTop: "16px",
+              cursor: "pointer"
+            }}
+          >
+            {loading ? "Creating..." : "Create Account"}
+          </button>
+        </form>
 
-        {/* Login Link */}
-        <div style={{
-          textAlign: 'center',
-          marginTop: '24px',
-          paddingTop: '24px',
-          borderTop: '1px solid #E0E0E0'
-        }}>
-          <p style={{ color: '#555555', fontSize: '0.9rem' }}>
-            Already have an account?{' '}
-            <a
-              href="#"
-              onClick={() => navigate('/login')}
-              style={{
-                color: '#800000',
-                textDecoration: 'none',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
-              onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
-            >
-              Sign In
-            </a>
-          </p>
-        </div>
+        {/* Login link */}
+        <p style={{ marginTop: "16px", textAlign: "center" }}>
+          Already have an account?{" "}
+          <span
+            style={{ color: "#800000", cursor: "pointer" }}
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </span>
+        </p>
       </div>
     </div>
   );

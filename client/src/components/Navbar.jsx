@@ -7,8 +7,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("tp_token");
-    setToken(null);
-    alert("Logged out successfully (demo)");
+    setToken(null);    
     window.location.href = "/";
   };
 

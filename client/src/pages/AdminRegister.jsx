@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import axiosClient from "../api/axiosClient";
 import { useNavigate } from "react-router-dom";
 
-const ADMIN_SECRET = "PRAGATI_ADMIN_2025";
-// TODO: don't keep this in frontend.
+const ADMIN_SECRET = import.meta.env.VITE_ADMIN_SECRET;
 
 const EyeIcon = ({ open }) =>
   open ? (

@@ -2,7 +2,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-
 exports.register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -29,13 +28,11 @@ exports.register = async (req, res) => {
       name: user.name,
       email: user.email,
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 exports.login = async (req, res) => {
   try {
@@ -53,14 +50,14 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // 3. create token 
+    // 3. create token
     const token = jwt.sign(
       {
-        id: user._id,        
-        role: user.role,     
+        id: user._id,
+        role: user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     // 4. response
@@ -73,13 +70,11 @@ exports.login = async (req, res) => {
         role: user.role,
       },
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 exports.me = async (req, res) => {
   try {
@@ -91,7 +86,6 @@ exports.me = async (req, res) => {
     }
 
     res.json(user);
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

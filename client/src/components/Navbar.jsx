@@ -151,7 +151,14 @@ const Navbar = () => {
           >
             Study Materials
           </a>
-
+          <a
+            href="/team"
+            style={navLinkStyle(hoveredLink === 'team')}
+            onMouseEnter={() => setHoveredLink('team')}
+            onMouseLeave={() => setHoveredLink(null)}
+          >
+            Team
+          </a>
           {/* Divider */}
           <div style={{
             width: '1px',

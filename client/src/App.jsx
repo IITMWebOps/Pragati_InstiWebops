@@ -11,7 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import Team from "./pages/Team";
 
 import AdminLogin from "./pages/AdminLogin";
 import AdminRegister from "./pages/AdminRegister";
@@ -30,6 +30,7 @@ function App() {
           <Route path="/study-materials" element={<StudyMaterials />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/team" element={<Team />} />
           <Route
             path="/dashboard"
             element={

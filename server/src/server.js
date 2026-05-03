@@ -13,7 +13,7 @@ connectDB();
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173"||`https://www.pragati.team`,
+    origin: "*", // Allow all origins; adjust as needed for production
     credentials: true,
   }),
 );

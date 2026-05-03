@@ -272,6 +272,16 @@ const Navbar = () => {
               >
                 Study Materials
               </a>
+              <a
+                href="/team"
+                style={{
+                  ...navLinkStyle(false),
+                  display: 'block',
+                  textAlign: 'left'
+                }}
+              >
+                Team
+              </a>
 
               <div style={{
                 height: '1px',

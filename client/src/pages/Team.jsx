@@ -37,12 +37,12 @@ const Team = () => {
           }}>
             {[
               {
-                imagePath:'/src/assets/surya.jpeg',
+                imagePath:'/images/surya.jpeg',
                 title: 'Surya Pratap Singh',
                 
               },
               {
-                imagePath:'/src/assets/shey.jpeg',
+                imagePath:'/images/shey.jpeg',
                 title: 'Shrey Malik',
               },
             ].map((feature, index) => (
